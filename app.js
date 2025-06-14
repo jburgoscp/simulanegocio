@@ -41,11 +41,11 @@ const businessModel = {
         cheques: { marketShare: 8, growth: -10, size: 8 }
     },
     porterForces: {
-        entrantes: { intensity: 8, impact: "Fintechs como Nubank" },
-        proveedores: { intensity: 5, impact: "Dependencia de ACI" },
-        clientes: { intensity: 7, impact: "Meli tiene gran poder" },
-        sustitutos: { intensity: 6, impact: "Criptomonedas" },
-        rivalidad: { intensity: 8, impact: "Coelsa y Link dominan" }
+        entrantes: { intensity: 4, impact: "Fintechs como Nubank" },
+        proveedores: { intensity: 3, impact: "Dependencia de ACI" },
+        clientes: { intensity: 4, impact: "Meli tiene gran poder" },
+        sustitutos: { intensity: 3, impact: "Criptomonedas" },
+        rivalidad: { intensity: 4, impact: "Coelsa y Link dominan" }
     },
     pestelAnalysis: {
         politico: { impact: 7, items: [
@@ -226,6 +226,30 @@ function initSimulatorControls() {
     // PESTEL simulation
     document.getElementById('simulate-pestel').addEventListener('click', simulatePESTEL);
     document.getElementById('apply-pestel').addEventListener('click', applyPESTELChanges);
+    
+    // Reset all effects button
+    document.getElementById('reset-effects').addEventListener('click', resetAllEffects);
+}
+
+// Function to reset all effects
+function resetAllEffects() {
+    // Reset P&L to base scenario
+    currentScenario = 'base';
+    updateDashboard();
+    
+    // Reset all PESTEL effects
+    for (const key in businessModel.pestelAnalysis) {
+        businessModel.pestelAnalysis[key].impact = 0; // or original value
+    }
+    
+    // Reset Porter forces
+    for (const key in businessModel.porterForces) {
+        businessModel.porterForces[key].intensity = 3; // Reset to midpoint
+    }
+
+    // Clear any previous simulation impacts
+    clearSimulationEffects();
+    updateAllCharts();
 }
 
 // Initialize editable cells
@@ -237,14 +261,17 @@ function initEditableCells() {
             const originalContent = this.textContent;
             const isCurrency = originalContent.includes('$');
             const isPercentage = originalContent.includes('%');
+            const isPorterIntensity = this.closest('tr') && this.closest('tr').dataset.force && !originalContent.includes('%');
             
             let inputType = 'text';
-            if (isCurrency || isPercentage) {
+            if (isCurrency || isPercentage || isPorterIntensity) {
                 let value = originalContent.replace(/[^0-9.-]/g, '');
                 if (isCurrency) {
                     value = value || '0';
                 } else if (isPercentage) {
                     value = value || '0';
+                } else if (isPorterIntensity) {
+                    value = value || '1';
                 }
                 
                 const input = document.createElement('input');
@@ -254,17 +281,21 @@ function initEditableCells() {
                 if (isPercentage) {
                     input.min = -100;
                     input.max = 1000;
+                } else if (isPorterIntensity) {
+                    input.min = 1;
+                    input.max = 5;
+                    input.step = 1;
                 } else {
                     input.min = 0;
                 }
                 
                 input.addEventListener('blur', function() {
-                    finishEditing(cell, input.value, isCurrency, isPercentage);
+                    finishEditing(cell, input.value, isCurrency, isPercentage, isPorterIntensity);
                 });
                 
                 input.addEventListener('keyup', function(e) {
                     if (e.key === 'Enter') {
-                        finishEditing(cell, input.value, isCurrency, isPercentage);
+                        finishEditing(cell, input.value, isCurrency, isPercentage, isPorterIntensity);
                     } else if (e.key === 'Escape') {
                         cancelEditing(cell, originalContent);
                     }
@@ -333,7 +364,7 @@ function initEditableListItems() {
 }
 
 // Finish editing a cell
-function finishEditing(cell, value, isCurrency, isPercentage) {
+function finishEditing(cell, value, isCurrency, isPercentage, isPorterIntensity = false) {
     let displayValue = value;
     
     if (isCurrency) {
@@ -364,10 +395,15 @@ function finishEditing(cell, value, isCurrency, isPercentage) {
             }
             updateBCGChart();
         }
+    } else if (isPorterIntensity) {
+        const numValue = parseInt(value) || 1;
+        displayValue = getPorterIntensityLabel(numValue);
         
-        // Update Porter forces if this is a Porter cell
+        // Update Porter forces
+        const row = cell.closest('tr');
         if (row && row.dataset.force) {
             businessModel.porterForces[row.dataset.force].intensity = numValue;
+            adjustMarginsBasedOnPorter(); // Adjust margins based on Porter forces
             updatePorterChart();
         }
     }
@@ -385,6 +421,18 @@ function finishEditing(cell, value, isCurrency, isPercentage) {
         cell.id === 'gross-margin' || cell.id === 'ebitda') {
         updateDashboard();
     }
+}
+
+// Get Porter intensity label
+function getPorterIntensityLabel(value) {
+    const labels = {
+        1: 'Muy Bajo',
+        2: 'Bajo',
+        3: 'Medio',
+        4: 'Alto',
+        5: 'Muy Alto'
+    };
+    return labels[value] || value;
 }
 
 // Finish text editing
@@ -537,8 +585,24 @@ function updatePESTELImpacts() {
     businessModel.pestelAnalysis.ecologico.impact = parseInt(document.getElementById('ecologico-impact').value) || 4;
     businessModel.pestelAnalysis.legal.impact = parseInt(document.getElementById('legal-impact').value) || 6;
     
+    // Update operational risk or expenses based on total impact
+    calculatePESTELImpact();
+
     // Update dashboard as PESTEL changes might affect NPS and other metrics
     updateDashboard();
+}
+
+// Calculate the impact of PESTEL on operational risk and costs
+function calculatePESTELImpact() {
+    let totalImpact = 0;
+    for (const key in businessModel.pestelAnalysis) {
+        totalImpact += businessModel.pestelAnalysis[key].impact;
+    }
+
+    // Adjust operational risk or expenses based on total impact
+    const scenarioData = getCurrentScenarioData();
+    scenarioData.expensePercentage += totalImpact; // Adjust as needed
+    updatePL(document.getElementById('transaction-volume').value);
 }
 
 // Simulate crypto investment
@@ -937,11 +1001,11 @@ function initRevenueChart() {
     const revenueCtx = document.getElementById('revenue-chart').getContext('2d');
     window.revenueChart = new Chart(revenueCtx, {
         type: 'line',
-        data: {
+        {
             labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
             datasets: [{
                 label: 'Ingresos (millones)',
-                data: [8, 8.5, 9.2, 9.8, 10.5, 11.2],
+                [8, 8.5, 9.2, 9.8, 10.5, 11.2],
                 borderColor: '#3498db',
                 backgroundColor: 'rgba(52, 152, 219, 0.1)',
                 fill: true,
@@ -982,11 +1046,11 @@ function initPLChart() {
     const plCtx = document.getElementById('pl-chart').getContext('2d');
     window.plChart = new Chart(plCtx, {
         type: 'bar',
-        data: {
+        {
             labels: ['Ingresos', 'Costos', 'Gastos', 'EBITDA'],
             datasets: [{
                 label: 'Millones USD',
-                data: [10, 6, 0.8, 3.2],
+                [10, 6, 0.8, 3.2],
                 backgroundColor: [
                     'rgba(46, 204, 113, 0.7)',
                     'rgba(231, 76, 60, 0.7)',
@@ -1031,11 +1095,11 @@ function initKPIsChart() {
     const kpisCtx = document.getElementById('kpis-chart').getContext('2d');
     window.kpisChart = new Chart(kpisCtx, {
         type: 'radar',
-        data: {
+        {
             labels: ['Margen Bruto', 'Eficiencia', 'Tasa Éxito', 'NPS', 'Uptime'],
             datasets: [{
                 label: 'Actual',
-                data: [80, 75, 98, 65, 99],
+                [80, 75, 98, 65, 99],
                 backgroundColor: 'rgba(52, 152, 219, 0.2)',
                 borderColor: 'rgba(52, 152, 219, 1)',
                 pointBackgroundColor: 'rgba(52, 152, 219, 1)',
@@ -1044,7 +1108,7 @@ function initKPIsChart() {
                 pointHoverBorderColor: 'rgba(52, 152, 219, 1)'
             }, {
                 label: 'Meta',
-                data: [90, 85, 95, 70, 99.9],
+                [90, 85, 95, 70, 99.9],
                 backgroundColor: 'rgba(46, 204, 113, 0.2)',
                 borderColor: 'rgba(46, 204, 113, 1)',
                 pointBackgroundColor: 'rgba(46, 204, 113, 1)',
@@ -1090,11 +1154,11 @@ function initBCGChart() {
     const bcgCtx = document.getElementById('bcg-matrix').getContext('2d');
     window.bcgChart = new Chart(bcgCtx, {
         type: 'bubble',
-        data: {
+        {
             datasets: [
                 {
                     label: 'Estrellas',
-                    data: [{
+                    [{
                         x: 35,
                         y: 70,
                         r: 20
@@ -1103,7 +1167,7 @@ function initBCGChart() {
                 },
                 {
                     label: 'Vacas Lecheras',
-                    data: [{
+                    [{
                         x: 25,
                         y: 5,
                         r: 15
@@ -1112,7 +1176,7 @@ function initBCGChart() {
                 },
                 {
                     label: 'Interrogantes',
-                    data: [{
+                    [{
                         x: 3,
                         y: 300,
                         r: 10
@@ -1121,7 +1185,7 @@ function initBCGChart() {
                 },
                 {
                     label: 'Perros',
-                    data: [{
+                    [{
                         x: 8,
                         y: -10,
                         r: 8
@@ -1140,7 +1204,7 @@ function initBCGChart() {
                         text: 'Participación de Mercado (%)'
                     },
                     min: 0,
-                    max: 40
+                    max: 100
                 },
                 y: {
                     title: {
@@ -1172,7 +1236,7 @@ function updateBCGChart() {
     window.bcgChart.data.datasets = [
         {
             label: 'Estrellas',
-            data: [{
+            [{
                 x: bcgData.transferencias.marketShare,
                 y: bcgData.transferencias.growth,
                 r: bcgData.transferencias.size
@@ -1181,7 +1245,7 @@ function updateBCGChart() {
         },
         {
             label: 'Vacas Lecheras',
-            data: [{
+            [{
                 x: bcgData.tarjetas.marketShare,
                 y: bcgData.tarjetas.growth,
                 r: bcgData.tarjetas.size
@@ -1190,7 +1254,7 @@ function updateBCGChart() {
         },
         {
             label: 'Interrogantes',
-            data: [{
+            [{
                 x: bcgData.remesas.marketShare,
                 y: bcgData.remesas.growth,
                 r: bcgData.remesas.size
@@ -1199,7 +1263,7 @@ function updateBCGChart() {
         },
         {
             label: 'Perros',
-            data: [{
+            [{
                 x: bcgData.cheques.marketShare,
                 y: bcgData.cheques.growth,
                 r: bcgData.cheques.size
@@ -1208,7 +1272,7 @@ function updateBCGChart() {
         },
         {
             label: 'Estrella Emergente',
-            data: [{
+            [{
                 x: bcgData.qr.marketShare,
                 y: bcgData.qr.growth,
                 r: bcgData.qr.size
@@ -1225,11 +1289,11 @@ function initPorterChart() {
     const porterCtx = document.getElementById('porter-chart').getContext('2d');
     window.porterChart = new Chart(porterCtx, {
         type: 'radar',
-        data: {
+        {
             labels: ['Nuevos Entrantes', 'Poder Proveedores', 'Poder Clientes', 'Productos Sustitutos', 'Rivalidad Competitiva'],
             datasets: [{
                 label: 'Intensidad',
-                data: [8, 5, 7, 6, 8],
+                [4, 3, 4, 3, 4],
                 backgroundColor: 'rgba(231, 76, 60, 0.2)',
                 borderColor: 'rgba(231, 76, 60, 1)',
                 pointBackgroundColor: 'rgba(231, 76, 60, 1)',
@@ -1246,8 +1310,23 @@ function initPorterChart() {
                     angleLines: {
                         display: true
                     },
-                    suggestedMin: 0,
-                    suggestedMax: 10
+                    suggestedMin: 1,
+                    suggestedMax: 5,
+                    ticks: {
+                        stepSize: 1,
+                        callback: function(value) {
+                            return getPorterIntensityLabel(value);
+                        }
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return getPorterIntensityLabel(context.raw);
+                        }
+                    }
                 }
             }
         }

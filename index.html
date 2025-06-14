@@ -345,8 +345,8 @@
 <body>
     <header>
         <div class="container">
-            <h1>Simulador de Negocio NewPay</h1>
-            <p class="subtitle">by Prisma - Modelo interactivo para pagos instantáneos</p>
+            <h1>Simulador NewPay by Prisma</h1>
+            <p class="subtitle">Modelo interactivo para pagos instantáneos</p>
         </div>
     </header>
     
@@ -574,8 +574,6 @@
                     <div class="card">
                         <div class="card-header">
                             <h2 class="card-title">Matriz BCG - Portafolio de Productos</h2>
-                        </div>
-                        <div class="card-body">
                             <div class="bcg-controls">
                                 <select id="bcg-product" class="bcg-product-select">
                                     <option value="transferencias">Transferencias Instantáneas</option>
@@ -586,14 +584,14 @@
                                 </select>
                                 <input type="number" id="bcg-market-share" class="bcg-input" placeholder="Participación %" min="0" max="100" step="0.1">
                                 <input type="number" id="bcg-growth" class="bcg-input" placeholder="Crecimiento %" step="1">
-                                <button class="btn bcg-update-btn" id="update-bcg">Actualizar</button>
+                                <button class="btn" id="update-bcg">Actualizar</button>
                             </div>
                             
                             <div style="position: relative; height: 400px;">
                                 <canvas id="bcg-matrix"></canvas>
                             </div>
                             
-                            <table style="margin-top: 30px;" id="bcg-table">
+                            <table style="margin-top: 30px;">
                                 <thead>
                                     <tr>
                                         <th>Producto</th>
@@ -663,35 +661,35 @@
                                         <thead>
                                             <tr>
                                                 <th>Fuerza</th>
-                                                <th>Intensidad (1-10)</th>
+                                                <th>Intensidad (1-5)</th>
                                                 <th>Impacto</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr data-force="entrantes">
                                                 <td>Nuevos Entrantes</td>
-                                                <td class="editable-cell">8</td>
-                                                <td class="editable-cell">Fintechs como Nubank</td>
+                                                <td class="editable-cell">4</td>
+                                                <td>Fintechs como Nubank</td>
                                             </tr>
                                             <tr data-force="proveedores">
                                                 <td>Poder de Proveedores</td>
-                                                <td class="editable-cell">5</td>
-                                                <td class="editable-cell">Dependencia de ACI</td>
+                                                <td class="editable-cell">3</td>
+                                                <td>Dependencia de ACI</td>
                                             </tr>
                                             <tr data-force="clientes">
                                                 <td>Poder de Clientes</td>
-                                                <td class="editable-cell">7</td>
-                                                <td class="editable-cell">Meli tiene gran poder</td>
+                                                <td class="editable-cell">4</td>
+                                                <td>Meli tiene gran poder</td>
                                             </tr>
                                             <tr data-force="sustitutos">
                                                 <td>Sustitutos</td>
-                                                <td class="editable-cell">6</td>
-                                                <td class="editable-cell">Criptomonedas</td>
+                                                <td class="editable-cell">3</td>
+                                                <td>Criptomonedas</td>
                                             </tr>
                                             <tr data-force="rivalidad">
                                                 <td>Rivalidad Competitiva</td>
-                                                <td class="editable-cell">8</td>
-                                                <td class="editable-cell">Coelsa y Link dominan</td>
+                                                <td class="editable-cell">4</td>
+                                                <td>Coelsa y Link dominan</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -716,108 +714,91 @@
                     <div class="card">
                         <div class="card-header">
                             <h2 class="card-title">Análisis PESTEL</h2>
-                            <button class="btn btn-primary" id="update-pestel">Actualizar Impacto</button>
                         </div>
                         <div class="card-body">
                             <div class="grid-3">
-                                <div class="kpi-card" style="background-color: #e8f4f8;">
+                                <div class="kpi-card">
                                     <h3>Político</h3>
-                                    <ul id="politico-list">
+                                    <ul>
                                         <li class="editable-list-item">Apertura financiera en Argentina</li>
                                         <li class="editable-list-item">Nuevas regulaciones de pagos</li>
                                         <li class="editable-list-item">Presión para inclusión financiera</li>
                                     </ul>
-                                    <div class="form-group">
-                                        <label for="politico-impact">Impacto (1-10)</label>
-                                        <input type="number" id="politico-impact" value="7" min="1" max="10">
-                                    </div>
+                                    <label for="politico-impact">Impacto (1-10)</label>
+                                    <input type="number" id="politico-impact" value="7" min="1" max="10">
                                 </div>
-                                <div class="kpi-card" style="background-color: #e8f8f0;">
+                                <div class="kpi-card">
                                     <h3>Económico</h3>
-                                    <ul id="economico-list">
+                                    <ul>
                                         <li class="editable-list-item">Crecimiento del 70% YoY en transacciones</li>
                                         <li class="editable-list-item">Inflación impacta costos</li>
                                         <li class="editable-list-item">Oportunidad en remesas</li>
                                     </ul>
-                                    <div class="form-group">
-                                        <label for="economico-impact">Impacto (1-10)</label>
-                                        <input type="number" id="economico-impact" value="8" min="1" max="10">
-                                    </div>
+                                    <label for="economico-impact">Impacto (1-10)</label>
+                                    <input type="number" id="economico-impact" value="8" min="1" max="10">
                                 </div>
-                                <div class="kpi-card" style="background-color: #f9f0e8;">
+                                <div class="kpi-card">
                                     <h3>Social</h3>
-                                    <ul id="social-list">
+                                    <ul>
                                         <li class="editable-list-item">Demanda de inmediatez (Gen Z)</li>
                                         <li class="editable-list-item">Adopción masiva de móviles</li>
                                         <li class="editable-list-item">Desconfianza en bancos tradicionales</li>
                                     </ul>
-                                    <div class="form-group">
-                                        <label for="social-impact">Impacto (1-10)</label>
-                                        <input type="number" id="social-impact" value="9" min="1" max="10">
-                                    </div>
+                                    <label for="social-impact">Impacto (1-10)</label>
+                                    <input type="number" id="social-impact" value="9" min="1" max="10">
                                 </div>
                             </div>
-                            
+
                             <div class="grid-3" style="margin-top: 20px;">
-                                <div class="kpi-card" style="background-color: #f0e8f8;">
+                                <div class="kpi-card">
                                     <h3>Tecnológico</h3>
-                                    <ul id="tecnologico-list">
+                                    <ul>
                                         <li class="editable-list-item">Blockchain para remesas</li>
                                         <li class="editable-list-item">APIs abiertas (Open Finance)</li>
                                         <li class="editable-list-item">IA para prevención de fraude</li>
                                     </ul>
-                                    <div class="form-group">
-                                        <label for="tecnologico-impact">Impacto (1-10)</label>
-                                        <input type="number" id="tecnologico-impact" value="8" min="1" max="10">
-                                    </div>
+                                    <label for="tecnologico-impact">Impacto (1-10)</label>
+                                    <input type="number" id="tecnologico-impact" value="8" min="1" max="10">
                                 </div>
-                                <div class="kpi-card" style="background-color: #f8f8e8;">
+                                <div class="kpi-card">
                                     <h3>Ecológico</h3>
-                                    <ul id="ecologico-list">
+                                    <ul>
                                         <li class="editable-list-item">Huella de carbono en data centers</li>
                                         <li class="editable-list-item">Presión por operaciones paperless</li>
                                         <li class="editable-list-item">Energías renovables para infraestructura</li>
                                     </ul>
-                                    <div class="form-group">
-                                        <label for="ecologico-impact">Impacto (1-10)</label>
-                                        <input type="number" id="ecologico-impact" value="4" min="1" max="10">
-                                    </div>
+                                    <label for="ecologico-impact">Impacto (1-10)</label>
+                                    <input type="number" id="ecologico-impact" value="4" min="1" max="10">
                                 </div>
-                                <div class="kpi-card" style="background-color: #f8e8e8;">
+                                <div class="kpi-card">
                                     <h3>Legal</h3>
-                                    <ul id="legal-list">
+                                    <ul>
                                         <li class="editable-list-item">Regulación de criptoactivos</li>
                                         <li class="editable-list-item">Leyes de protección de datos</li>
                                         <li class="editable-list-item">Nuevas normas contra lavado</li>
                                     </ul>
-                                    <div class="form-group">
-                                        <label for="legal-impact">Impacto (1-10)</label>
-                                        <input type="number" id="legal-impact" value="6" min="1" max="10">
-                                    </div>
+                                    <label for="legal-impact">Impacto (1-10)</label>
+                                    <input type="number" id="legal-impact" value="6" min="1" max="10">
                                 </div>
                             </div>
-                            
+
                             <div style="margin-top: 30px;">
                                 <h3>Oportunidades Clave</h3>
                                 <div class="grid-2">
-                                    <div>
-                                        <div class="kpi-card" style="background-color: #e8f8e8; text-align: left;">
-                                            <h4 class="editable-cell">Remesas con Cripto</h4>
-                                            <p class="editable-cell">Aprovechar la nueva regulación para capturar el mercado de remesas USA-Latam (crecimiento del 300%)</p>
-                                        </div>
+                                    <div class="kpi-card">
+                                        <h4 class="editable-cell">Remesas con Cripto</h4>
+                                        <p class="editable-cell">Aprovechar la nueva regulación para capturar el mercado de remesas USA-Latam (crecimiento del 300%)</p>
                                     </div>
-                                    <div>
-                                        <div class="kpi-card" style="background-color: #e8e8f8; text-align: left;">
-                                            <h4 class="editable-cell">Open Finance</h4>
-                                            <p class="editable-cell">Posicionarse como plataforma de integración para fintechs y bancos tradicionales</p>
-                                        </div>
+                                    <div class="kpi-card">
+                                        <h4 class="editable-cell">Open Finance</h4>
+                                        <p class="editable-cell">Posicionarse como plataforma de integración para fintechs y bancos tradicionales</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </section>
-                
+
                 <!-- Decision Simulator Section -->
                 <section id="simulator-section" class="content-section hidden">
                     <div class="card">
@@ -955,13 +936,13 @@
                                     <button class="btn btn-primary" id="apply-product">Aplicar Cambios</button>
                                 </div>
                             </div>
-                            
+
                             <div id="bcg-options" class="scenario-options hidden">
                                 <h3>Reasignación de Portafolio BCG</h3>
                                 <div class="form-group">
                                     <label for="bcg-strategy">Estrategia de Inversión</label>
                                     <select id="bcg-strategy">
-                                        <option value="balance">Balanceado (actual)</option>
+                                        <option value="balanced">Balanceado (actual)</option>
                                         <option value="growth">Enfoque en Crecimiento</option>
                                         <option value="profit">Enfoque en Rentabilidad</option>
                                     </select>
@@ -1003,7 +984,7 @@
                                     <button class="btn btn-primary" id="apply-bcg">Aplicar Cambios</button>
                                 </div>
                             </div>
-                            
+
                             <div id="pestel-options" class="scenario-options hidden">
                                 <h3>Cambio de Estrategia PESTEL</h3>
                                 <div class="form-group">
@@ -1054,7 +1035,6 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
