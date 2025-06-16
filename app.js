@@ -34,11 +34,14 @@ const businessModel = {
         uptime: 99.90
     },
     bcgMatrix: {
-        transferencias: { marketShare: 35, growth: 70, size: 20 },
-        qr: { marketShare: 15, growth: 120, size: 15 },
-        tarjetas: { marketShare: 25, growth: 5, size: 15 },
         remesas: { marketShare: 3, growth: 300, size: 10 },
-        cheques: { marketShare: 8, growth: -10, size: 8 }
+        cripto: { marketShare: 15, growth: 120, size: 15 },
+        transferenciasPull: { marketShare: 35, growth: 70, size: 20 },
+        pagos: { marketShare: 25, growth: 5, size: 15 },
+        transferenciasRecurrentes: { marketShare: 8, growth: -10, size: 8 },
+        serviciosPSP: { marketShare: 20, growth: 15, size: 25 }, // Estrella
+        extraccion: { marketShare: 5, growth: -15, size: 5 }, // Perro
+        tarjetas: { marketShare: 25, growth: 5, size: 15 }, // Vaca Lechera
     },
     porterForces: {
         entrantes: { intensity: 4, impact: "Fintechs como Nubank" },
@@ -226,30 +229,6 @@ function initSimulatorControls() {
     // PESTEL simulation
     document.getElementById('simulate-pestel').addEventListener('click', simulatePESTEL);
     document.getElementById('apply-pestel').addEventListener('click', applyPESTELChanges);
-    
-    // Reset all effects button
-    document.getElementById('reset-effects').addEventListener('click', resetAllEffects);
-}
-
-// Function to reset all effects
-function resetAllEffects() {
-    // Reset P&L to base scenario
-    currentScenario = 'base';
-    updateDashboard();
-    
-    // Reset all PESTEL effects
-    for (const key in businessModel.pestelAnalysis) {
-        businessModel.pestelAnalysis[key].impact = 0; // or original value
-    }
-    
-    // Reset Porter forces
-    for (const key in businessModel.porterForces) {
-        businessModel.porterForces[key].intensity = 3; // Reset to midpoint
-    }
-
-    // Clear any previous simulation impacts
-    clearSimulationEffects();
-    updateAllCharts();
 }
 
 // Initialize editable cells
@@ -403,18 +382,12 @@ function finishEditing(cell, value, isCurrency, isPercentage, isPorterIntensity 
         const row = cell.closest('tr');
         if (row && row.dataset.force) {
             businessModel.porterForces[row.dataset.force].intensity = numValue;
-            adjustMarginsBasedOnPorter(); // Adjust margins based on Porter forces
             updatePorterChart();
         }
     }
     
     cell.textContent = displayValue;
     editableActive = null;
-    
-    // Recalculate P&L if this was a P&L cell
-    if (cell.id === 'operating-income' || cell.id === 'direct-costs' || cell.id === 'operating-expenses') {
-        updatePL(document.getElementById('transaction-volume').value);
-    }
     
     // Update dashboard if any financial metric changed
     if (cell.id === 'operating-income' || cell.id === 'direct-costs' || cell.id === 'operating-expenses' || 
@@ -585,24 +558,8 @@ function updatePESTELImpacts() {
     businessModel.pestelAnalysis.ecologico.impact = parseInt(document.getElementById('ecologico-impact').value) || 4;
     businessModel.pestelAnalysis.legal.impact = parseInt(document.getElementById('legal-impact').value) || 6;
     
-    // Update operational risk or expenses based on total impact
-    calculatePESTELImpact();
-
     // Update dashboard as PESTEL changes might affect NPS and other metrics
     updateDashboard();
-}
-
-// Calculate the impact of PESTEL on operational risk and costs
-function calculatePESTELImpact() {
-    let totalImpact = 0;
-    for (const key in businessModel.pestelAnalysis) {
-        totalImpact += businessModel.pestelAnalysis[key].impact;
-    }
-
-    // Adjust operational risk or expenses based on total impact
-    const scenarioData = getCurrentScenarioData();
-    scenarioData.expensePercentage += totalImpact; // Adjust as needed
-    updatePL(document.getElementById('transaction-volume').value);
 }
 
 // Simulate crypto investment
@@ -977,7 +934,7 @@ function updateKPIStatus(kpi, value, target) {
 
 // Get current scenario data
 function getCurrentScenarioData() {
-    switch(currentScenario) {
+    switch (currentScenario) {
         case 'optimista':
             return businessModel.optimisticScenario;
         case 'pesimista':
@@ -1219,7 +1176,7 @@ function initBCGChart() {
                 tooltip: {
                     callbacks: {
                         label: function(context) {
-                            const labels = ['Transferencias', 'Tarjetas', 'Cripto', 'Cheques'];
+                            const labels = ['Transferencias', 'Cripto', 'Transferencias Pull', 'Pagos', 'Transferencias Recurrentes'];
                             return labels[context.datasetIndex];
                         }
                     }
@@ -1237,9 +1194,9 @@ function updateBCGChart() {
         {
             label: 'Estrellas',
             [{
-                x: bcgData.transferencias.marketShare,
-                y: bcgData.transferencias.growth,
-                r: bcgData.transferencias.size
+                x: bcgData.serviciosPSP.marketShare,
+                y: bcgData.serviciosPSP.growth,
+                r: bcgData.serviciosPSP.size
             }],
             backgroundColor: 'rgba(52, 152, 219, 0.7)'
         },
@@ -1264,18 +1221,18 @@ function updateBCGChart() {
         {
             label: 'Perros',
             [{
-                x: bcgData.cheques.marketShare,
-                y: bcgData.cheques.growth,
-                r: bcgData.cheques.size
+                x: bcgData.extraccion.marketShare,
+                y: bcgData.extraccion.growth,
+                r: bcgData.extraccion.size
             }],
             backgroundColor: 'rgba(231, 76, 60, 0.7)'
         },
         {
             label: 'Estrella Emergente',
             [{
-                x: bcgData.qr.marketShare,
-                y: bcgData.qr.growth,
-                r: bcgData.qr.size
+                x: bcgData.transferenciasPull.marketShare,
+                y: bcgData.transferenciasPull.growth,
+                r: bcgData.transferenciasPull.size
             }],
             backgroundColor: 'rgba(155, 89, 182, 0.7)'
         }
